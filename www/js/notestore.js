@@ -2,9 +2,9 @@ angular.module('mynotes.notestore', [])
 .factory('NoteStore', function($http) {
 
   var apiUrl = 'http://localhost:8200';
- 
+  
   return {
-    list: function() {
+    list: function() {    
      return $http.get(apiUrl + '/notes/').then(function(response) {
       return response.data;
      });

@@ -6,11 +6,18 @@
 
 (function() {
 
-var app = angular.module('mynotes', ['ionic', 'mynotes.notestore']);
+var app = angular.module('mynotes', ['ionic', 'mynotes.user', 'mynotes.notestore']);
 
 app.config(function($stateProvider, $urlRouterProvider) {
+
+  $stateProvider.state('login', {
+    url: '/login',
+    templateUrl: 'templates/login.html',
+    controller: 'LoginCtrl'
+  });
+
   $stateProvider.state('list', {
-    url: '/list',
+    url: '/',
     templateUrl: 'templates/list.html',
     cache: false
   });
@@ -27,9 +34,25 @@ app.config(function($stateProvider, $urlRouterProvider) {
     controller: 'AddCtrl'
   });
 
-  $urlRouterProvider.otherwise('/list');
+  $urlRouterProvider.otherwise('/');
 });
 
+
+app.controller('LoginCtrl', function($scope, $state, $ionicHistory, User) {
+
+  $scope.credentials = {
+    user: '',
+    password: ''
+  };
+
+  $scope.login = function() {
+    User.login($scope.credentials)
+      .then(function () {
+        $ionicHistory.nextViewOptions({historyRoot: true});    
+        $state.go('list');
+      });   
+  };
+});
 
 app.controller('ListCtrl', function($scope, NoteStore) {
 
@@ -83,7 +106,13 @@ app.controller('EditCtrl', function($scope, $state, NoteStore) {
 });
 
 
-app.run(function($ionicPlatform) {
+app.run(function($rootScope, $state, $ionicPlatform, User) {
+  $rootScope.$on('$stateChangeStart', function(event, toState) {
+    if (!User.isLoggedIn() && toState.name != 'login') {
+      event.preventDefault();
+      $state.go('login');
+    }
+  });
   $ionicPlatform.ready(function() {
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
