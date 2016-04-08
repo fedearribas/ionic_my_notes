@@ -1,5 +1,14 @@
 <ion-view view-title="My Notes" ng-controller="ListCtrl">
   <ion-content>   
+
+  <div class="row" ng-show="!notes.length">
+    <div class="col">
+        <div>
+            <h2 class="">You have no notes, feel free to add new ones!</h2>
+        </div>
+    </div>
+  </div>
+   
     <ion-list show-reorder="reordering">
       <ion-item class="item-remove-animate item-icon-right"
       href="#/edit/{{note.id}}" ng-repeat="note in notes track by note.id">
@@ -17,6 +26,8 @@
   </ion-content>
   <div class="bar bar-footer bar-stable">
      <a href="#/add" class="button button-energized icon-left ion-compose">New Note</a>
+     <button class="button" ng-click="logout()">Logout</button>
+
      <button 
        class="button button-light icon-left ion-shuffle"
        ng-click="toggleReordering()">

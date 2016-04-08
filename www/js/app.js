@@ -6,6 +6,7 @@
 
 (function() {
 
+
 var app = angular.module('mynotes', ['ionic', 'mynotes.user', 'mynotes.notestore']);
 
 app.config(function($stateProvider, $urlRouterProvider) {
@@ -20,7 +21,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
     url: '/',
     templateUrl: 'templates/list.html',
     cache: false
-  });
+  });  
 
   $stateProvider.state('edit', {
     url: '/edit/:noteId',
@@ -38,8 +39,8 @@ app.config(function($stateProvider, $urlRouterProvider) {
 });
 
 
-app.controller('LoginCtrl', function($scope, $state, $ionicHistory, User) {
-
+app.controller('LoginCtrl', function($scope, $state, $ionicHistory, $ionicPopup, User) {
+ 
   $scope.credentials = {
     user: '',
     password: ''
@@ -47,16 +48,32 @@ app.controller('LoginCtrl', function($scope, $state, $ionicHistory, User) {
 
   $scope.login = function() {
     User.login($scope.credentials)
-      .then(function () {
+      .then(function () {        
         $ionicHistory.nextViewOptions({historyRoot: true});    
         $state.go('list');
-      });   
-  };
+      })
+      .catch(function() { 
+
+        var alertPopup = $ionicPopup.alert({
+           title: 'Login Error',
+           template: 'The username or password is incorrect.'
+          });
+      }); 
+    };
+
+   
 });
 
-app.controller('ListCtrl', function($scope, NoteStore) {
+
+app.controller('ListCtrl', function($scope, $state, $ionicHistory, NoteStore, User) {
 
   $scope.reordering = false;
+
+  $scope.logout = function () {
+    User.logout();     
+    $ionicHistory.nextViewOptions({historyRoot: true}); 
+    $state.go('login');
+  };
 
   function refreshNotes () {
     NoteStore.list().then(function(notes) {
